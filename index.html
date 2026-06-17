@@ -443,11 +443,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     }
     .editor-panel {
       background: #ffffff;
-      border-color: rgba(17, 24, 39, 0.045);
-      box-shadow:
-        0 1px 0 rgba(17, 24, 39, 0.025),
-        0 8px 18px -20px rgba(17, 17, 24, 0.12),
-        inset 0 1px 1px rgba(255, 255, 255, 1);
+      border-color: rgba(17, 24, 39, 0.04);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      box-shadow: none;
     }
     .dark .editor-panel {
       box-shadow:
@@ -457,11 +456,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     }
     .editor-shell.is-active .editor-panel {
       background: #ffffff;
-      border-color: rgba(17, 24, 39, 0.045);
-      box-shadow:
-        0 1px 0 rgba(17, 24, 39, 0.025),
-        0 8px 18px -20px rgba(17, 17, 24, 0.12),
-        inset 0 1px 1px rgba(255, 255, 255, 1);
+      border-color: rgba(17, 24, 39, 0.04);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      box-shadow: none;
     }
     .dark .editor-shell.is-active .editor-panel {
       box-shadow:
@@ -1786,9 +1784,10 @@ function App() {
       transform: 'translateZ(0)'
     }
   }), /*#__PURE__*/React.createElement("div", {
-    className: `absolute inset-y-0 left-0 w-[85vw] sm:w-96 bg-white/95 dark:bg-black/95 backdrop-blur-[60px] backdrop-saturate-[200%] border-r border-black/5 dark:border-white/10 z-50 flex flex-col shadow-[20px_0_40px_rgba(0,0,0,0.15)] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`,
+    className: `absolute inset-y-0 left-0 w-[85vw] sm:w-96 bg-white/95 dark:bg-black/95 backdrop-blur-[60px] backdrop-saturate-[200%] border-r border-black/5 dark:border-white/10 z-50 flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`,
     style: {
-      transform: isMenuOpen ? 'translate3d(0,0,0)' : 'translate3d(-100%,0,0)'
+      transform: isMenuOpen ? 'translate3d(0,0,0)' : 'translate3d(-100%,0,0)',
+      boxShadow: isMenuOpen ? '20px 0 40px rgba(0,0,0,0.15)' : 'none'
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "flex justify-between items-center px-6 pt-[max(env(safe-area-inset-top),24px)] pb-4 shrink-0"
