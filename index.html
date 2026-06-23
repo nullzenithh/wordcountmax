@@ -583,7 +583,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 1px;
-        margin: 0 0 8px;
+        margin: 0 0 10px;
         padding: 6px 5px;
         min-height: 48px;
         border-radius: 20px;
@@ -637,7 +637,9 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       }
       .stats-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-        max-height: min(31vh, 216px);
+        /* カード内容(ドキュメント+下限上限)が収まる高さを確保し、押し込みによる
+           はみ出し(上のストリップへの重なり)を防ぐ。収まらない端末ではスクロール */
+        max-height: min(48vh, 320px);
         overflow-y: auto;
         overscroll-behavior: contain;
         padding-right: 1px;
@@ -935,15 +937,12 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       42% { transform: translate(-50%, -50%) scale(1.07); }
     }
     @media (max-width: 767px) {
+      /* フォーカス時は背景もエディタも純白(ダークは純黒)にして、カードとの境目をなくす */
       .app-scene.is-editing {
-        background:
-          radial-gradient(120% 72% at 50% 0%, rgba(212, 226, 249, .82), transparent 64%),
-          linear-gradient(180deg, #eef3fb 0%, #f4f5f8 42%, #eceef2 100%);
+        background: #ffffff;
       }
       .dark .app-scene.is-editing {
-        background:
-          radial-gradient(110% 66% at 50% 0%, rgba(40, 40, 42, .42), transparent 62%),
-          linear-gradient(180deg, #0b0b0b, #050505 58%, #000);
+        background: #000000;
       }
       .app-scene.is-editing .nav-bar {
         height: 58px;
@@ -973,19 +972,15 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       }
       .app-scene.is-editing .editor-panel,
       .app-scene.is-editing .editor-shell.is-active .editor-panel {
-        background: rgba(255,255,255,.92);
-        border-color: rgba(255,255,255,.76);
-        box-shadow:
-          0 26px 58px -42px rgba(53, 65, 87, .48),
-          inset 0 1px 1px rgba(255,255,255,.96);
+        background: #ffffff;
+        border-color: transparent;
+        box-shadow: none;
       }
       .dark .app-scene.is-editing .editor-panel,
       .dark .app-scene.is-editing .editor-shell.is-active .editor-panel {
-        background: rgba(16,16,18,.92);
-        border-color: rgba(255,255,255,.10);
-        box-shadow:
-          0 28px 62px -40px rgba(0,0,0,.92),
-          inset 0 1px 1px rgba(255,255,255,.14);
+        background: #000000;
+        border-color: transparent;
+        box-shadow: none;
       }
       .app-scene.is-editing .editor-layer:focus-visible {
         outline: none !important;
@@ -2798,7 +2793,7 @@ function App() {
     type: "button",
     onClick: requestClearText,
     "aria-label": "\u30C6\u30AD\u30B9\u30C8\u3092\u6D88\u53BB",
-    className: "icon-button absolute top-3 right-3 md:top-6 md:right-6 p-2 md:p-3 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 rounded-full transition-colors text-gray-600 dark:text-gray-300 active:scale-90 z-10",
+    className: "icon-button absolute top-2 right-2 md:top-5 md:right-5 p-2 md:p-3 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 rounded-full transition-colors text-gray-600 dark:text-gray-300 active:scale-90 z-10",
     style: {
       transform: 'translateZ(0)'
     }
