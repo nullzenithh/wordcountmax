@@ -786,10 +786,22 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     .nav-btn:active{ transform: scale(.9); opacity: .6; }
     .nav-btn.is-trailing{ font-size: 17px; font-weight: 600; }
     .nav-trailing-spacer { width: 44px; height: 44px; flex: 0 0 44px; }
+    /* 取り消し/やり直しボタン(ナビ右上) */
+    .nav-actions { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; }
+    .nav-action-btn {
+      -webkit-appearance: none; background: none; border: none;
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; min-width: 40px; height: 44px; min-height: 44px; padding: 0;
+      color: #007AFF; cursor: pointer;
+      transition: transform .2s cubic-bezier(.32,.72,0,1), opacity .25s ease;
+    }
+    .dark .nav-action-btn { color: #0A84FF; }
+    .nav-action-btn:active:not(:disabled) { transform: scale(.86); }
+    .nav-action-btn:disabled { cursor: default; }
     .nav-title{
       position: absolute; left: 50%; top: 50%;
       transform: translate(-50%, calc(-50% + 7px));
-      max-width: 58%; padding: 0 8px;
+      max-width: 52%; padding: 0 8px;
       font-size: 17px; font-weight: 600; letter-spacing: -.4px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       opacity: 0; pointer-events: none;
@@ -830,7 +842,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       gap: 0;
       width: max-content;
       min-width: 72px;
-      max-width: calc(100% - 112px);
+      max-width: calc(100% - 200px);
       min-height: 40px;
       padding: 4px 5px 4px 14px;
       box-sizing: border-box;
@@ -995,6 +1007,32 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
         transition: none !important;
       }
     }
+  </style>
+
+  <!-- 補完ユーティリティ: 事前ビルドのTailwind静的CSSに含まれていない使用済みクラスを、
+       正確なTailwind既定値で定義する。既存ビルドは無改変のため回帰リスクなし。 -->
+  <style id="supplemental-utilities">
+    .min-h-\[96px\]{min-height:96px}
+    .bg-black\/30{background-color:rgb(0 0 0 / 0.3)}
+    .dark .dark\:bg-black\/60{background-color:rgb(0 0 0 / 0.6)}
+    @media (min-width:768px){
+      .md\:min-h-\[108px\]{min-height:108px}
+      .md\:p-3\.5{padding:0.875rem}
+      .md\:py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}
+      .md\:p-1\.5{padding:0.375rem}
+      .md\:text-5xl{font-size:3rem;line-height:1}
+      .md\:mb-1{margin-bottom:0.25rem}
+    }
+    @media (min-width:1024px){
+      .lg\:text-6xl{font-size:3.75rem;line-height:1}
+      .lg\:text-2xl{font-size:1.5rem;line-height:2rem}
+    }
+    /* 元コードの装飾用 arbitrary 値(ビルド未収録)を補完 */
+    .ease-\[cubic-bezier\(0\.32\,0\.72\,0\,1\)\]{transition-timing-function:cubic-bezier(0.32,0.72,0,1)}
+    .shadow-\[0_0_8px_rgba\(255\,59\,48\,0\.5\)\]{box-shadow:0 0 8px rgba(255,59,48,0.5)}
+    .shadow-\[0_1px_4px_rgba\(0\,0\,0\,0\.12\)\]{box-shadow:0 1px 4px rgba(0,0,0,0.12)}
+    .shadow-\[0_3px_8px_rgba\(0\,0\,0\,0\.15\)\]{box-shadow:0 3px 8px rgba(0,0,0,0.15)}
+    .shadow-\[0_8px_24px_rgba\(0\,0\,0\,0\.3\)\]{box-shadow:0 8px 24px rgba(0,0,0,0.3)}
   </style>
 
 </head>
@@ -1165,6 +1203,24 @@ const Icon = ({
   strokeLinejoin: "round",
   className: className
 }, children);
+const Undo2 = ({
+  className
+}) => /*#__PURE__*/React.createElement(Icon, {
+  className: className
+}, /*#__PURE__*/React.createElement("path", {
+  d: "M9 14 4 9l5-5"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11"
+}));
+const Redo2 = ({
+  className
+}) => /*#__PURE__*/React.createElement(Icon, {
+  className: className
+}, /*#__PURE__*/React.createElement("path", {
+  d: "m15 14 5-5-5-5"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13"
+}));
 const Type = ({
   className
 }) => /*#__PURE__*/React.createElement(Icon, {
@@ -1724,6 +1780,9 @@ const ConfirmDialog = ({
 function App() {
   const [documents, setDocuments] = useState([]);
   const [currentDocId, setCurrentDocId] = useState(null);
+  // テキスト編集の取り消し/やり直し履歴(現在のドキュメント単位)
+  const [historyVersion, setHistoryVersion] = useState(0);
+  const historyRef = useRef({ undo: [], redo: [], lastPushTime: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMenuMounted, setIsMenuMounted] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -2099,6 +2158,44 @@ function App() {
       updatedAt: Date.now()
     } : doc));
   };
+  // 連続入力は1ステップにまとめ(600ms)、戻る/進むはそれ単位で動かす
+  const recordHistory = prevText => {
+    const h = historyRef.current;
+    const now = Date.now();
+    const coalesce = h.undo.length > 0 && now - h.lastPushTime < 600;
+    if (!coalesce) {
+      h.undo.push(prevText);
+      if (h.undo.length > 200) h.undo.shift();
+    }
+    if (h.redo.length) h.redo = [];
+    h.lastPushTime = now;
+    setHistoryVersion(v => v + 1);
+  };
+  const undoEdit = () => {
+    const h = historyRef.current;
+    if (!h.undo.length) return;
+    haptic();
+    h.redo.push(currentDoc.text || '');
+    const prev = h.undo.pop();
+    h.lastPushTime = 0;
+    updateCurrentDoc({ text: prev });
+    setHistoryVersion(v => v + 1);
+  };
+  const redoEdit = () => {
+    const h = historyRef.current;
+    if (!h.redo.length) return;
+    haptic();
+    h.undo.push(currentDoc.text || '');
+    const next = h.redo.pop();
+    h.lastPushTime = 0;
+    updateCurrentDoc({ text: next });
+    setHistoryVersion(v => v + 1);
+  };
+  // ドキュメントを切り替えたら履歴はリセットする
+  useEffect(() => {
+    historyRef.current = { undo: [], redo: [], lastPushTime: 0 };
+    setHistoryVersion(v => v + 1);
+  }, [currentDocId]);
   const updateSetting = (key, value) => setSettings(prev => ({
     ...prev,
     [key]: value
@@ -2434,6 +2531,9 @@ function App() {
   // Native chrome: nav bar / large title condense on scroll or while typing (mobile)
   const condensed = scrolled || (isMobile && isFocused);
   const showInputStatus = isMobile && isFocused;
+  // 取り消し/やり直しの可否(historyVersionの更新で再評価される)
+  const canUndo = historyVersion >= 0 && historyRef.current.undo.length > 0;
+  const canRedo = historyVersion >= 0 && historyRef.current.redo.length > 0;
   // カプセルの幅を文字数の桁数に連動させるため、桁数とカンマ数を算出する
   const charCountStr = charCount.toLocaleString();
   const charCountCommas = (charCountStr.match(/,/g) || []).length;
@@ -2721,9 +2821,28 @@ function App() {
   }, statusPercentLabel)), /*#__PURE__*/React.createElement("div", {
     className: `nav-title text-gray-900 dark:text-white ${showInputStatus ? 'is-hidden' : ''}`
   }, docTitle), /*#__PURE__*/React.createElement("div", {
-    className: "nav-trailing-spacer",
-    "aria-hidden": "true",
-  })), /*#__PURE__*/React.createElement("div", {
+    className: "nav-actions"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: undoEdit,
+    disabled: !canUndo,
+    "aria-label": "元に戻す",
+    title: "元に戻す",
+    className: "nav-action-btn",
+    style: { opacity: canUndo ? 1 : 0.3 }
+  }, /*#__PURE__*/React.createElement(Undo2, {
+    className: "w-5 h-5"
+  })), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: redoEdit,
+    disabled: !canRedo,
+    "aria-label": "やり直す",
+    title: "やり直す",
+    className: "nav-action-btn",
+    style: { opacity: canRedo ? 1 : 0.3 }
+  }, /*#__PURE__*/React.createElement(Redo2, {
+    className: "w-5 h-5"
+  })))), /*#__PURE__*/React.createElement("div", {
     className: `large-title-wrap shrink-0 ${condensed ? 'is-condensed' : ''}`
   }, /*#__PURE__*/React.createElement("input", {
     type: "text",
@@ -2762,6 +2881,7 @@ function App() {
     ref: textareaRef,
     value: safeText,
     onChange: e => {
+      recordHistory(safeText);
       updateCurrentDoc({
         text: e.target.value
       });
@@ -2793,8 +2913,10 @@ function App() {
     type: "button",
     onClick: requestClearText,
     "aria-label": "\u30C6\u30AD\u30B9\u30C8\u3092\u6D88\u53BB",
-    className: "icon-button absolute top-2 right-2 md:top-5 md:right-5 p-2 md:p-3 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 rounded-full transition-colors text-gray-600 dark:text-gray-300 active:scale-90 z-10",
+    className: "icon-button absolute p-2 md:p-3 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 rounded-full transition-colors text-gray-600 dark:text-gray-300 active:scale-90 z-10",
     style: {
+      top: '12px',
+      right: '12px',
       transform: 'translateZ(0)'
     }
   }, /*#__PURE__*/React.createElement(X, {
